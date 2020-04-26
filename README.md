@@ -14,6 +14,7 @@
 * NumPy >= 1.18
 
 Simply run the following command: `pip3 install numpy opencv-python torch matplotlib`
+
 Or create a conda environment by `conda install --name myenv --file superglue.txt`
 
 ## Contents
