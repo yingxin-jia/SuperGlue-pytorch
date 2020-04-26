@@ -19,7 +19,7 @@ Or create a conda environment by `conda install --name myenv --file superglue.tx
 ## Contents
 There are two main top-level scripts in this repo:
 
-1. `train.py` : trains the superglue model
+1. `train.py` : trains the superglue model.
 2. `load_data.py`: reads images from files and creates pairs. It generates keypoints, descriptors and ground truth matches which will be used in training.
 
 ### Training Directions
