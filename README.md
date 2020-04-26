@@ -38,8 +38,8 @@ python train.py
 * Use `--viz_extension` to set the visualization file extension (default: `png`). Use pdf for highest-quality.
 
 ### Visualization Demo
-
 The matches are colored by their predicted confidence in a jet colormap (Red: more confident, Blue: less confident).
+
 <img src="assets/2799_matches.png" width="800">
 <img src="assets/3849_matches2.png" width="800">
 <img src="assets/3949_matches.png" width="800">
