@@ -24,7 +24,7 @@ There are two main top-level scripts in this repo:
 
 ### Training Directions
 
-To train the SuperGlue with default parameters, run the following command
+To train the SuperGlue with default parameters, run the following command:
 
 ```sh
 python train.py
