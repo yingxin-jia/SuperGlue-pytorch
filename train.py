@@ -111,7 +111,7 @@ parser.add_argument(
     help='Path to the directory in which the .npz results and optional,'
             'visualizations are written')
 parser.add_argument(
-    '--learning_rate', type=int, default=0.0001, # 0.001 is too big. loss explode at 4000 pairs.
+    '--learning_rate', type=int, default=0.0001,
     help='Learning rate')
 
     
@@ -119,8 +119,11 @@ parser.add_argument(
     '--batch_size', type=int, default=1,
     help='batch_size')
 parser.add_argument(
-    '--train_path', type=str, default='/dev/shm/MSCOCO2014_yingxin/',
+    '--train_path', type=str, default='/dev/shm/MSCOCO2014_yingxin/', # MSCOCO2014_yingxin
     help='Path to the directory of training imgs.')
+# parser.add_argument(
+#     '--nfeatures', type=int, default=1024,
+#     help='Number of feature points to be extracted initially, in each img.')
 parser.add_argument(
     '--epoch', type=int, default=20,
     help='Number of epoches')
@@ -159,10 +162,10 @@ if __name__ == '__main__':
     train_set = SparseDataset(opt.train_path, opt.max_keypoints)
     train_loader = torch.utils.data.DataLoader(dataset=train_set, shuffle=False, batch_size=opt.batch_size, drop_last=True)
 
-    superpoint = SuperPoint(config.get('superpoint', {}))
+    # superpoint = SuperPoint(config.get('superpoint', {}))
     superglue = SuperGlue(config.get('superglue', {}))
     if torch.cuda.is_available():
-        superpoint.cuda()
+        # superpoint.cuda()
         superglue.cuda()
     else:
         print("### CUDA not available ###")
@@ -197,15 +200,15 @@ if __name__ == '__main__':
             Loss.backward()
             optimizer.step()
 
-            if (i+1) % 50 == 0:
+            if (i+1) % 100 == 0:
                 print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}' 
                     .format(epoch, opt.epoch, i+1, len(train_loader), torch.mean(torch.stack(mean_loss)).item()))   # Loss.item()    
                 mean_loss = []
 
 
-                ### visualize ###
-                superglue.eval()
+                ### eval ###
                 # Visualize the matches.
+                superglue.eval()
                 image0, image1 = pred['image0'].cpu().numpy()[0]*255., pred['image1'].cpu().numpy()[0]*255.
                 kpts0, kpts1 = pred['keypoints0'].cpu().numpy()[0], pred['keypoints1'].cpu().numpy()[0]
                 matches, conf = pred['matches0'].cpu().detach().numpy(), pred['matching_scores0'].cpu().detach().numpy()
@@ -224,7 +227,6 @@ if __name__ == '__main__':
                     image0, image1, kpts0, kpts1, mkpts0, mkpts1, color,
                     text, viz_path, stem, stem, opt.show_keypoints,
                     opt.fast_viz, opt.opencv_display, 'Matches')
-                # print(str(i)," done: ", pred['file_name'])
 
 
 
