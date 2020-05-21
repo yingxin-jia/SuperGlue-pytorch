@@ -195,16 +195,17 @@ if __name__ == '__main__':
 
             superglue.zero_grad()
             Loss = pred['loss']
-            epoch_loss += Loss
+            epoch_loss += Loss.item()
             mean_loss.append(Loss) # every 10 pairs
             Loss.backward()
             optimizer.step()
+
+
 
             if (i+1) % 100 == 0:
                 print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}' 
                     .format(epoch, opt.epoch, i+1, len(train_loader), torch.mean(torch.stack(mean_loss)).item()))   # Loss.item()    
                 mean_loss = []
-
 
                 ### eval ###
                 # Visualize the matches.
@@ -230,8 +231,22 @@ if __name__ == '__main__':
 
 
 
+                # Estimate the pose and compute the pose error.
+                
+
+
+
+            if (i+1) % 5e3 == 0:
+                model_out_path = "model_epoch_{}.pth".format(epoch)
+                torch.save(superglue, model_out_path)
+                print ('Epoch [{}/{}], Step [{}/{}], Checkpoint saved to {}' 
+                    .format(epoch, opt.epoch, i+1, len(train_loader), model_out_path)) 
+
+
+        epoch_loss /= len(train_loader)
         model_out_path = "model_epoch_{}.pth".format(epoch)
         torch.save(superglue, model_out_path)
-        print("Checkpoint saved to {}".format(model_out_path))
-        print("Epoch [{}/{}] done.".format(epoch, opt.epoch))
+        print("Epoch [{}/{}] done. Epoch Loss {}. Checkpoint saved to {}"
+            .format(epoch, opt.epoch, epoch_loss, model_out_path))
+        
 
