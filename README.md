@@ -1,10 +1,15 @@
 # SuperGlue PyTorch Implementation
 
 ## Introduction
+<img src="assets/superglue1.png" > 
+*SuperGlue acts as a middle-end between hand-crafted or learned front-end and back-end*
+
  The SuperGlue network is a Graph Neural Network combined with an Optimal Matching layer that is trained to perform matching on two sets of sparse image features. This repo includes PyTorch code for training the SuperGlue matching network on top of [SIFT](http://www.diva-portal.org/smash/get/diva2:480321/FULLTEXT02) keypoints and descriptors. SuperGlue operates as a "middle-end," performing context aggregation, matching, and filtering in a single end-to-end architecture. For more details, please see:
 
 * Full paper PDF: [SuperGlue: Learning Feature Matching with Graph Neural Networks](https://arxiv.org/abs/1911.11763).
 
+<img src="assets/superglue2.png" > 
+*SuperGlue architecture*
 
 ## Dependencies
 * Python 3
@@ -22,6 +27,20 @@ There are two main top-level scripts in this repo:
 
 1. `train.py` : trains the superglue model.
 2. `load_data.py`: reads images from files and creates pairs. It generates keypoints, descriptors and ground truth matches which will be used in training.
+
+### Download Data
+Download the COCO2014 dataset files for training
+```
+wget http://images.cocodataset.org/zips/train2014.zip
+```
+Download the validation set
+```
+wget http://images.cocodataset.org/zips/val2014.zip
+```
+Download the test set
+```
+wget http://images.cocodataset.org/zips/test2014.zip
+```
 
 ### Training Directions
 
