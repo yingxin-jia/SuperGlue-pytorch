@@ -12,7 +12,6 @@ import os
 import torch.multiprocessing
 from tqdm import tqdm
 
-# from models.matching import Matching
 from models.utils import (compute_pose_error, compute_epipolar_error,
                           estimate_pose, make_matching_plot,
                           error_colormap, AverageTimer, pose_auc, read_image,
@@ -25,15 +24,6 @@ from models.matchingForTraining import MatchingForTraining
 
 torch.set_grad_enabled(True)
 torch.multiprocessing.set_sharing_strategy('file_system')
-# os.environ["CUDA_VISIBLE_DEVICES"]="0"
-# torch.multiprocessing.set_start_method("spawn")
-# torch.cuda.set_device(0)
-
-# try:
-#     torch.multiprocessing.set_start_method('spawn')
-# except RuntimeError:
-#     pass
-
 
 parser = argparse.ArgumentParser(
     description='Image pair matching and pose evaluation with SuperGlue',
@@ -114,16 +104,12 @@ parser.add_argument(
     '--learning_rate', type=int, default=0.0001,
     help='Learning rate')
 
-    
 parser.add_argument(
     '--batch_size', type=int, default=1,
     help='batch_size')
 parser.add_argument(
-    '--train_path', type=str, default='/dev/shm/MSCOCO2014_yingxin/', # MSCOCO2014_yingxin
+    '--train_path', type=str, default='/home/yinxinjia/yingxin/dataset/COCO2014_train/', 
     help='Path to the directory of training imgs.')
-# parser.add_argument(
-#     '--nfeatures', type=int, default=1024,
-#     help='Number of feature points to be extracted initially, in each img.')
 parser.add_argument(
     '--epoch', type=int, default=20,
     help='Number of epoches')
@@ -134,12 +120,11 @@ if __name__ == '__main__':
     opt = parser.parse_args()
     print(opt)
 
+    # make sure the flags are properly used
     assert not (opt.opencv_display and not opt.viz), 'Must use --viz with --opencv_display'
     assert not (opt.opencv_display and not opt.fast_viz), 'Cannot use --opencv_display without --fast_viz'
     assert not (opt.fast_viz and not opt.viz), 'Must use --viz with --fast_viz'
     assert not (opt.fast_viz and opt.viz_extension == 'pdf'), 'Cannot use pdf extension with --fast_viz'
-
-
 
     # store viz results
     eval_output_dir = Path(opt.eval_output_dir)
@@ -159,23 +144,23 @@ if __name__ == '__main__':
         }
     }
 
+    # load training data
     train_set = SparseDataset(opt.train_path, opt.max_keypoints)
     train_loader = torch.utils.data.DataLoader(dataset=train_set, shuffle=False, batch_size=opt.batch_size, drop_last=True)
 
-    # superpoint = SuperPoint(config.get('superpoint', {}))
     superglue = SuperGlue(config.get('superglue', {}))
+
     if torch.cuda.is_available():
-        # superpoint.cuda()
-        superglue.cuda()
+        superglue.cuda() # make sure it trains on GPU
     else:
         print("### CUDA not available ###")
     optimizer = torch.optim.Adam(superglue.parameters(), lr=opt.learning_rate)
-
     mean_loss = []
+
+    # start training
     for epoch in range(1, opt.epoch+1):
         epoch_loss = 0
         superglue.double().train()
-        # train_loader = tqdm(train_loader)
         for i, pred in enumerate(train_loader):
             for k in pred:
                 if k != 'file_name' and k!='image0' and k!='image1':
@@ -185,26 +170,26 @@ if __name__ == '__main__':
                         pred[k] = Variable(torch.stack(pred[k]).cuda())
                 
             data = superglue(pred)
-
             for k, v in pred.items():
                 pred[k] = v[0]
             pred = {**pred, **data}
 
             if pred['skip_train'] == True: # image has no keypoint
                 continue
-
-            superglue.zero_grad()
+            
+            # process loss
             Loss = pred['loss']
             epoch_loss += Loss.item()
-            mean_loss.append(Loss) # every 10 pairs
+            mean_loss.append(Loss)
+
+            superglue.zero_grad()
             Loss.backward()
             optimizer.step()
 
-
-
-            if (i+1) % 100 == 0:
+            # for every 50 images, print progress and visualize the matches
+            if (i+1) % 50 == 0:
                 print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}' 
-                    .format(epoch, opt.epoch, i+1, len(train_loader), torch.mean(torch.stack(mean_loss)).item()))   # Loss.item()    
+                    .format(epoch, opt.epoch, i+1, len(train_loader), torch.mean(torch.stack(mean_loss)).item())) 
                 mean_loss = []
 
                 ### eval ###
@@ -229,20 +214,14 @@ if __name__ == '__main__':
                     text, viz_path, stem, stem, opt.show_keypoints,
                     opt.fast_viz, opt.opencv_display, 'Matches')
 
-
-
-                # Estimate the pose and compute the pose error.
-                
-
-
-
+            # process checkpoint for every 5e3 images
             if (i+1) % 5e3 == 0:
                 model_out_path = "model_epoch_{}.pth".format(epoch)
                 torch.save(superglue, model_out_path)
                 print ('Epoch [{}/{}], Step [{}/{}], Checkpoint saved to {}' 
                     .format(epoch, opt.epoch, i+1, len(train_loader), model_out_path)) 
 
-
+        # save checkpoint when an epoch finishes
         epoch_loss /= len(train_loader)
         model_out_path = "model_epoch_{}.pth".format(epoch)
         torch.save(superglue, model_out_path)
