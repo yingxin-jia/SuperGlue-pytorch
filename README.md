@@ -2,6 +2,7 @@
 
 ## Introduction
 <p align="center">
+  SuperGlue acts as a middle-end between hand-crafted or learned front-end and back-end
   <img src="assets/superglue1.png" width="400"/>
 </p>
 
