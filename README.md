@@ -1,22 +1,15 @@
 # SuperGlue PyTorch Implementation
 
 ## Introduction
-<center><img src="assets/superglue1.png" ></center>
-<center>SuperGlue acts as a middle-end between hand-crafted or learned front-end and back-end</center>
-
-<p align="center">
-
-  <img src="assets/superglue1.png">
-  This is an image
-
-</p>
+<center><img src="assets/superglue1.png" width="400"></center>
+<center>SuperGlue acts as a middle-end between hand-crafted or learned front-end and back-end</center><br />
 
  The SuperGlue network is a Graph Neural Network combined with an Optimal Matching layer that is trained to perform matching on two sets of sparse image features. This repo includes PyTorch code for training the SuperGlue matching network on top of [SIFT](http://www.diva-portal.org/smash/get/diva2:480321/FULLTEXT02) keypoints and descriptors. SuperGlue operates as a "middle-end," performing context aggregation, matching, and filtering in a single end-to-end architecture. For more details, please see:
 
-* Full paper PDF: [SuperGlue: Learning Feature Matching with Graph Neural Networks](https://arxiv.org/abs/1911.11763).
-
 <center><img src="assets/superglue2.png"></center>
 <center>SuperGlue architecture</center>
+
+* Full paper PDF: [SuperGlue: Learning Feature Matching with Graph Neural Networks](https://arxiv.org/abs/1911.11763).
 
 ## Dependencies
 * Python 3
@@ -66,6 +59,7 @@ python train.py
 
 ### Visualization Demo
 The matches are colored by their predicted confidence in a jet colormap (Red: more confident, Blue: less confident).
+You should see images like this inside of `dump_match_pairs/`
 
 <img src="assets/8349_matches.png" width="800">
 <img src="assets/4599_matches2.png" width="800">
