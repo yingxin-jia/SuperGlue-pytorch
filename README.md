@@ -1,5 +1,8 @@
 # SuperGlue PyTorch Implementation
 
+## This SuperGlue implementation is intended for an application of Physarum Dynamics LP solver. Physarum Dynamics is a very fast and efficient LP solver that can be used to replace the original Sinkhorn Algorithm in SuperGlue. 
+* Full paper PDF: [Physarum Powered Differentiable Linear Programming Layers and Applications](https://arxiv.org/abs/2004.14539).
+
 ## Introduction
 <p align="center">
   <img src="assets/superglue1.png" width="400"/>
